@@ -1,15 +1,21 @@
 package com.azmitia.inventoryhub100.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.azmitia.inventoryhub100.dto.ProductDTO;
+import com.azmitia.inventoryhub100.service.ProductService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/product")
+@RequestMapping(value = "/api")
 public class ProductController {
 
-    @GetMapping(value = "/test")
-    public String greet(){
-        return "Product 1";
+    @Autowired
+    private ProductService service;
+
+    @PostMapping(value = "/products/create")
+    public ResponseEntity create(@RequestBody ProductDTO product){
+        return new ResponseEntity(service.createProduct(product), HttpStatus.OK);
     }
 }

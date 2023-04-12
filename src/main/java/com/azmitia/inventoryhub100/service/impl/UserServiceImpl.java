@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
         userMap.put("email", user.getEmail());
         userMap.put("password", user.getPassword());
 
-        CollectionReference users = firebase.getFirestore().collection("user");
+        CollectionReference users = getCollection();
         ApiFuture<DocumentReference> documentReferenceApiFuture = users.add(userMap);
 
         try {

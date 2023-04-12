@@ -29,4 +29,4 @@ Estas instrucciones te ayudarán a tener una copia del proyecto en funcionamient
 
 ## Autor
 
-- José Carlos Perez Azmitia - https://github.com/JoseAzmitia
+- José Carlos Perez Azmitia - [JoseAzmitia](https://github.com/JoseAzmitia)

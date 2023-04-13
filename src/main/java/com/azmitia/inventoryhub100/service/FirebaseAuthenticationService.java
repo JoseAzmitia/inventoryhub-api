@@ -2,6 +2,7 @@ package com.azmitia.inventoryhub100.service;
 
 import com.azmitia.inventoryhub100.dto.UserDTO;
 import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
@@ -40,4 +41,12 @@ public class FirebaseAuthenticationService {
         // Aquí puedes guardar los datos del usuario en Firestore u otra base de datos.
         return userRecord.getUid();
     }
+
+    public void resetPassword(String email) throws FirebaseAuthException {
+        String link = firebaseAuth.generatePasswordResetLink(email);
+        System.out.println("Link: " + link);
+    }
+
+
+
 }

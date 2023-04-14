@@ -21,9 +21,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO user) {
         try {
-            String idToken = authService.authenticateUser(user);
+            Map<String, Object> authResponse = authService.authenticateUser(user);
+            String customToken = (String) authResponse.get("customToken");
+            String uid = (String) authResponse.get("uid");
             Map<String, String> response = new HashMap<>();
-            response.put("token", idToken);
+            response.put("token", customToken);
+            response.put("uid", uid);
             return ResponseEntity.ok(response);
         } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Invalid credentials"));
@@ -49,5 +52,18 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error sending password reset link: " + e.getMessage());
         }
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(@RequestBody Map<String, String> payload) {
+        try {
+            authService.logout(payload.get("uid"));
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "User logged out successfully");
+            return ResponseEntity.ok(response);
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
 
 }

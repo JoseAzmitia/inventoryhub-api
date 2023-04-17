@@ -20,11 +20,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private FirebaseInitializer firebase;
 
+    public UserServiceImpl(FirebaseInitializer firebase) {
+        this.firebase = firebase;
+        this.firebase.getFirestore();
+    }
+
     @Override
     public UserDTO createUser(UserDTO user) {
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", user.getEmail());
-        userMap.put("password", user.getPassword());
 
         CollectionReference users = getCollection();
         ApiFuture<DocumentReference> documentReferenceApiFuture = users.add(userMap);
@@ -109,6 +113,26 @@ public class UserServiceImpl implements UserService {
         } catch (InterruptedException | ExecutionException e) {
             return null;
         }
+    }
+
+    @Override
+    public UserDTO getUserByEmail(String email) {
+        CollectionReference users = getCollection();
+        Query query = users.whereEqualTo("email", email).limit(1);
+
+        try {
+            QuerySnapshot querySnapshot = query.get().get();
+            if (!querySnapshot.isEmpty()) {
+                DocumentSnapshot documentSnapshot = querySnapshot.getDocuments().get(0);
+                UserDTO user = documentSnapshot.toObject(UserDTO.class);
+                user.setId(documentSnapshot.getId());
+                return user;
+            }
+        } catch (Exception e) {
+            System.out.println("Error getting user by email: " + e.getMessage());
+        }
+
+        return null;
     }
 
     private CollectionReference getCollection() {

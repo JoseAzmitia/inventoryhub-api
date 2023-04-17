@@ -26,16 +26,6 @@ public class UserController {
         }
     }
 
-    @PutMapping(value="/{id}/password")
-    public ResponseEntity<UserDTO> updateUserPassword(@PathVariable String id, @RequestBody String newPassword) {
-        UserDTO updatedUser = service.updateUser(id, newPassword);
-        if (updatedUser != null) {
-            return ResponseEntity.ok(updatedUser);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
     @DeleteMapping(value="/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         service.deleteUser(id);

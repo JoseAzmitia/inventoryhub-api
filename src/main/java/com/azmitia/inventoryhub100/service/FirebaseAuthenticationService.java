@@ -3,7 +3,6 @@ package com.azmitia.inventoryhub100.service;
 import com.azmitia.inventoryhub100.dto.UserDTO;
 import com.google.firebase.ErrorCode;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.*;
 import firebase.FirebaseInitializer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,19 +15,26 @@ import java.util.Map;
 @Service
 public class FirebaseAuthenticationService {
     private final FirebaseAuth firebaseAuth;
+    private final UserService userService;
 
     @Autowired
-    public FirebaseAuthenticationService(FirebaseInitializer firebaseInitializer) throws IOException {
+    public FirebaseAuthenticationService(FirebaseInitializer firebaseInitializer, UserService userService) throws IOException {
+        this.userService = userService;
         this.firebaseAuth = FirebaseAuth.getInstance(FirebaseApp.getInstance());
     }
+
 
     public Map<String, Object> authenticateUser(UserDTO user) throws FirebaseAuthException {
         UserRecord userRecord = firebaseAuth.getUserByEmail(user.getEmail());
         String uid = userRecord.getUid();
         String customToken = firebaseAuth.createCustomToken(uid);
+        System.out.println(customToken);
+        UserDTO userFirestore = userService.getUserByEmail(user.getEmail());
         Map<String, Object> response = new HashMap<>();
         response.put("uid", uid);
-        response.put("customToken", customToken);
+        response.put("token", customToken);
+        response.put("userId", userFirestore.getId());
+        response.put("email", userFirestore.getEmail());
         return response;
     }
 
@@ -41,7 +47,7 @@ public class FirebaseAuthenticationService {
 
         UserRecord userRecord = firebaseAuth.createUser(request);
 
-        // Aquí puedes guardar los datos del usuario en Firestore u otra base de datos.
+        UserDTO newUser = userService.createUser(new UserDTO(user.getEmail(), user.getPassword()));
         return userRecord.getUid();
     }
 

@@ -22,11 +22,15 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> login(@RequestBody UserDTO user) {
         try {
             Map<String, Object> authResponse = authService.authenticateUser(user);
-            String customToken = (String) authResponse.get("customToken");
+            String customToken = (String) authResponse.get("token");
             String uid = (String) authResponse.get("uid");
+            String userId = (String) authResponse.get("userId");
+            String email = (String) authResponse.get("email");
             Map<String, String> response = new HashMap<>();
             response.put("token", customToken);
             response.put("uid", uid);
+            response.put("user", userId);
+            response.put("email", email);
             return ResponseEntity.ok(response);
         } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Invalid credentials"));

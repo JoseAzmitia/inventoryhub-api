@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -20,6 +21,26 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderDTO createOrder(String userId, List<ProductDTO> products) {
+        // Obtener la referencia a la colección de productos
+        CollectionReference productsCollection = firebase.getFirestore().collection("product");
+
+        for (ProductDTO product : products) {
+            DocumentReference productDoc = productsCollection.document(product.getId());
+            // Obtener el stock actual del producto
+            ApiFuture<DocumentSnapshot> future = productDoc.get();
+            try {
+                DocumentSnapshot document = future.get();
+                if (document.exists()) {
+                    ProductDTO existingProduct = document.toObject(ProductDTO.class);
+                    // Actualizar el stock
+                    int newStock = existingProduct.getStock() - product.getQuantity();
+                    productDoc.update("stock", newStock);
+                }
+            } catch (InterruptedException | ExecutionException e) {
+                System.err.println("Error actualizando el stock del producto " + product.getId());
+            }
+        }
+
         Map<String, Object> orderMap = new HashMap<>();
         orderMap.put("userId", userId);
         orderMap.put("products", products);
@@ -47,8 +68,40 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void deleteOrder(String orderId) {
+        // Obtener la referencia a la colección de productos
+        CollectionReference productsCollection = firebase.getFirestore().collection("product");
+
         CollectionReference orders = getCollection();
-        orders.document(orderId).delete();
+        DocumentReference orderDoc = orders.document(orderId);
+
+        ApiFuture<DocumentSnapshot> orderFuture = orderDoc.get();
+        try {
+            DocumentSnapshot orderDocument = orderFuture.get();
+            if (orderDocument.exists()) {
+                OrderDTO order = orderDocument.toObject(OrderDTO.class);
+
+                // Recorrer los productos de la orden y actualizar el stock
+                for (ProductDTO product : order.getProducts()) {
+                    DocumentReference productDoc = productsCollection.document(product.getId());
+
+                    ApiFuture<DocumentSnapshot> productFuture = productDoc.get();
+                    DocumentSnapshot productDocument = productFuture.get();
+
+                    if (productDocument.exists()) {
+                        ProductDTO existingProduct = productDocument.toObject(ProductDTO.class);
+
+                        // Sumar la cantidad de la orden al stock del producto
+                        int newStock = existingProduct.getStock() + product.getQuantity();
+                        productDoc.update("stock", newStock);
+                    }
+                }
+
+                // Borrar la orden
+                orderDoc.delete();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            System.err.println("Error al cancelar la orden " + orderId);
+        }
     }
 
     @Override
@@ -78,7 +131,7 @@ public class OrderServiceImpl implements OrderService {
     private BigDecimal calculateTotalValue(List<ProductDTO> products) {
         double totalValue = 0.0;
         for (ProductDTO product : products) {
-            totalValue += product.getPrice();
+            totalValue += product.getPrice() * product.getQuantity();
         }
         return BigDecimal.valueOf(totalValue);
     }

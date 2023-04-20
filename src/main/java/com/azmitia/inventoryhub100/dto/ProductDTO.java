@@ -11,4 +11,5 @@ public class ProductDTO {
     private String image;
     private String category;
     private String userId;
+    private Integer quantity;
 }

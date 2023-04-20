@@ -30,7 +30,7 @@ public class AuthController {
             response.put("token", customToken);
             response.put("uid", uid);
             response.put("user", userId);
-            response.put("email", email);
+            response.put("correo", email);
             return ResponseEntity.ok(response);
         } catch (FirebaseAuthException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.singletonMap("error", "Invalid credentials"));

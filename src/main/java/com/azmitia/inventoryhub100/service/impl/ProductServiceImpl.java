@@ -26,6 +26,7 @@ public class ProductServiceImpl implements ProductService {
         Query query = products.whereEqualTo("userId", userId);
         ApiFuture<QuerySnapshot> querySnapshotApiFuture = query.get();
         List<ProductDTO> productList = new ArrayList<>();
+        System.out.println("api llamada");
 
         try {
             for (QueryDocumentSnapshot document : querySnapshotApiFuture.get().getDocuments()) {
@@ -69,6 +70,7 @@ public class ProductServiceImpl implements ProductService {
         productMap.put("stock", product.getStock());
         productMap.put("image", product.getImage());
         productMap.put("userId", product.getUserId());
+        productMap.put("quantity", 1);
 
         CollectionReference products = getCollection();
         ApiFuture<DocumentReference> documentReferenceApiFuture = products.add(productMap);

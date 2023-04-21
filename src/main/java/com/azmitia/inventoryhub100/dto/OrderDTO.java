@@ -13,4 +13,5 @@ public class OrderDTO {
     private List<ProductDTO> products;
     private BigDecimal totalValue;
     private String userId;
+    private Integer items;
 }

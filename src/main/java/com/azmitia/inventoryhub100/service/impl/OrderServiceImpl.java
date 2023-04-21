@@ -40,12 +40,17 @@ public class OrderServiceImpl implements OrderService {
                 System.err.println("Error actualizando el stock del producto " + product.getId());
             }
         }
+        int totalItems = 0;
+        for (ProductDTO product : products) {
+            totalItems += product.getQuantity();
+        }
 
         Map<String, Object> orderMap = new HashMap<>();
         orderMap.put("userId", userId);
         orderMap.put("products", products);
         orderMap.put("totalValue", calculateTotalValue(products));
         orderMap.put("createdAt", new Date());
+        orderMap.put("items", totalItems);
 
         CollectionReference orders = getCollection();
         ApiFuture<DocumentReference> documentReferenceApiFuture = orders.add(orderMap);
@@ -58,6 +63,7 @@ public class OrderServiceImpl implements OrderService {
                 order.setProducts(products);
                 order.setTotalValue(calculateTotalValue(products));
                 order.setCreatedAt(new Date());
+                order.setItems(totalItems);
                 return order;
             }
             return null;

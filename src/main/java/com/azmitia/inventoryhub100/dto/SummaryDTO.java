@@ -13,4 +13,5 @@ public class SummaryDTO {
     private int totalCategories;
     private double totalSales;
     private double totalStock;
+    private double totalValue;
 }

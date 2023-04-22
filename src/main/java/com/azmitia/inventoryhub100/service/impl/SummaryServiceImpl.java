@@ -64,6 +64,16 @@ public class SummaryServiceImpl implements SummaryService {
             }
             summaryDTO.setTotalStock(totalStock);
 
+            // Obtener el totalValue
+            double totalValue = 0;
+            for (QueryDocumentSnapshot productDocument : productQuerySnapshot.get().getDocuments()) {
+                double price = productDocument.getDouble("price");
+                int stock = productDocument.getLong("stock").intValue();
+                totalValue += price * stock;
+            }
+            summaryDTO.setTotalValue(totalValue);
+
+
         } catch (InterruptedException | ExecutionException e) {
             System.out.println(e.getMessage());
         }
